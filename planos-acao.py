@@ -8,7 +8,9 @@ session = HTMLSession()
 # variáveis do projeto
 # projeto = ''
 
+print(Fore.YELLOW)
 projeto = str(input('Por favor, especifique o nome do projeto:\n'))
+print(Style.RESET_ALL)
 
 htdocs = f'C://xampp/htdocs/{projeto}/' # alterar para htdocs proprio
 
@@ -16,7 +18,6 @@ htdocs = f'C://xampp/htdocs/{projeto}/' # alterar para htdocs proprio
 f = []
 
 def get_mpis(URL):
-
 
     rm = session.get(URL + 'mapa-site')
 
@@ -94,6 +95,7 @@ def create(body, file):
 	    # faz a criacao dos arquivos
 		with open(f'./projetos/{arquivo}' + '.php', 'w', encoding='utf8') as f:
 
+			body = body.replace('<!-- include(\'inc/btn-modal.php\'); -->', "<? include('inc/btn-modal.php'); ?>")
 			#cria
 			f.write(body)
 			f.write('</html>')
@@ -116,7 +118,7 @@ def add_content(t, html, a):
 		for article in soup.select('article'):
 
 			new_tag = soup.new_tag("div")
-			new_tag.append("<!-- include('inc/btn-modal.php'); -->")
+			new_tag.append('<!-- include(\'inc/btn-modal.php\'); -->')
 
 			h2 = article.find('h2')
 
@@ -140,7 +142,7 @@ def add_content(t, html, a):
 
 # Inicia função principal para executar as correções
 print(Fore.YELLOW)
-print('Iniciando correções... Aguarde\n', Style.RESET_ALL)
+print('Iniciando Plano De Ação... Aguarde\n', Style.RESET_ALL)
 
 if projeto:
 	try:
@@ -166,6 +168,7 @@ if projeto:
 					body = add_content(title, html, a)
 					
 					create(body, a)
+					# print(body)
 
 				except:
 					Error['Não foi possível realizar o ajustes no(s) arquivo(s)'].append(f'=> {a}.php')
