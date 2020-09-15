@@ -1,7 +1,7 @@
 # planos_py
 
 ## - Importante -
-## Antes de iniciar, siga o passo-passo abaixo de preparação de ambiente.
+## Antes de iniciar, siga o passo-passo abaixo para a preparação do ambiente.
 
 * [Instale o Python na sua máquina.]
 * [Tenha o projeto desejado já clonado em htdocs/Git, ou htdocs]
