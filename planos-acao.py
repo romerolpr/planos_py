@@ -10,10 +10,10 @@ projeto = str(input('Por favor, especifique o nome do projeto: '))
 print(Style.RESET_ALL)
 
 # alterar para htdocs proprio
-htdocs = f'E://xampp/htdocs/Git/{projeto}/'
+htdocs = f'C://xampp/htdocs/{projeto}/'
 
 # código a ser inserido
-code = 'include(\'btn-modal.php\');'
+code = 'include(\'inc/btn-modal.php\');'
 
 # "True" aplica o plano em todas as palavras chaves do projeto. 
 # "False", utiliza a lista "f" para realizar os planos
