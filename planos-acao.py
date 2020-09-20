@@ -8,46 +8,60 @@ from colorama import Fore, Style, init
 import sys
 
 # Variáveis Pessoais (alterar)
-htdocs 	= 'C://xampp/htdocs/'
+htdocs 	= 'E://xampp/htdocs/Git/'	
 code 	= 'include(\'inc/btn-modal.php\');' # Código a ser inserido nos aquivos
+web 	= 'mpitemporario.com.br/projetos/' # site para montar a sessao
+# Sistema editável
 vAll 	= True # Quando True resgata todas as MPI'S automaticamente
 f 		= []
-
-# Sistema
-Start 	= False
 
 init(autoreset=True)
 
 while True:
 
+	# Sistema
+	Start = False
 	terminal = ''
 
 	# comandos do sistema
-	def comands(console):
-		if '-' == console:
-			print(Fore.WHITE + f'"{console}" Comando não reconhecido')
-			print(Fore.WHITE + '-help para abrir o guia de uso.')
+	def commands(console):
+
+		def getUrl(b):
+			b = b.split('//')[-1].split('/')[-1]
+			return ''
+
+		# lista de variáveis para exibir no comando
+		listvar = {'htdocs': htdocs, 'code': code, 'url': getUrl(htdocs)}
+
+		# help
 		if '-help' in console:
-			print(Fore.WHITE + 'planos_py, ' + Fore.GREEN + 'versão 1.0' + Fore.YELLOW + ' (beta)', Style.DIM)
-			print(Fore.WHITE + '\nComandos nativos do sistema')
-			print(Fore.WHITE + ' -a     ─────── Iniciar programa.')
-			print(Fore.WHITE + ' -code  ─────── Alterar código de inclusão.')
-			print(Fore.WHITE + ' -help  ─────── Exibe comandos do sistema.')
-			print(Fore.WHITE + ' -clear ─────── Limpa a tela sempre que precisar.')
-			print(Fore.WHITE + ' -exit  ─────── Encerra o programa.')
-		if ' -clear' in console or '-clear' == console:
+			print(Fore.WHITE + 'planos_py, versão 1.0 (beta)')
+			print(Fore.WHITE + 'Comandos de execução')
+			print(Fore.GREEN + ' -a   ' + Fore.CYAN + '   ───────  ' + Fore.WHITE + 'Inicia o programa.')
+			print(Fore.GREEN + ' -p   ' + Fore.CYAN + '   ───────  ' + Fore.WHITE + 'Imprime na tela uma variável existente. [var] [...]')
+			print(Fore.GREEN + ' -help' + Fore.CYAN + '   ───────  ' + Fore.WHITE + 'Exibe comandos completos do sistema.')
+			print(Fore.WHITE + '\nComandos rápidos')
+			print(Fore.GREEN + ' clear' + Fore.CYAN + '   ───────  ' + Fore.WHITE + 'Limpa todos os elementos na tela.')
+			print(Fore.GREEN + ' exit ' + Fore.CYAN +  '   ───────  ' + Fore.WHITE + 'Encerra todos os processos.')
+
+		# comandos
+		if ' clear' in console or 'clear' == console:
 			clear = lambda: os.system('cls')
 			clear()
-		if '-exit' == console:
+		if 'exit' == console:
 			sys.exit()
-
+		if ' -p' in console:
+			var = console.split(' -p')[0]
+			for event in listvar:
+				if var in event:
+					print(listvar[var])
 	# projeto
 	while ' -a' not in terminal:
 		print(Fore.YELLOW + '\nEspecifique o nome do projeto' + Fore.CYAN + ' (-a para iniciar)')
 		terminal = str(input('$ '))
 		# definindo funções do console
 		if terminal not in ' -a':
-			comands(terminal)
+			commands(terminal)
 		else:
 			Start = True if terminal else False
 
@@ -57,6 +71,11 @@ while True:
 	g 			= []
 
 	# Programa
+
+	# Rewrite url
+	def url_replace(url, file):
+		rewrite = 'http://' + web + projeto + '/' if not file else 'http://' + web + projeto + '/' + file
+		return rewrite
 
 	def get_mpis(URL):
 		rm = session.get(URL + 'mapa-site')
@@ -81,16 +100,6 @@ while True:
 				return ''.join(map(str, content))
 		except IOError:
 			return False	
-
-	# montar url do temporario
-	def url_replace(x, file):
-		x = x.split('//')[1]
-		# project = x.split('/')[2] if 'git' not in workplace.lower() else x.split('/')[3] 
-		if not file:
-			return 'http://mpitemporario.com.br/projetos/' + projeto + '/'
-			print(projeto)
-		else:
-			return 'http://mpitemporario.com.br/projetos/' + projeto + '/' + file
 		
 	# variáveis para mascara
 	elements = []
@@ -260,9 +269,7 @@ while True:
 	else:
 		print(Fore.RED + msg)	
 
-
-	# print(Fore.YELLOW + '\nProcesso Finalizado. Deseja reiniciar o programa? ' + Fore.CYAN + '(Y/ N)')
-	# Final = str(input('$ ')).upper()
-
 	Start = False
 	workplace = htdocs
+
+	del f[:]
