@@ -11,50 +11,57 @@ import sys
 htdocs 	= 'E://xampp/htdocs/Git/'	
 code 	= 'include(\'inc/btn-modal.php\');' # Código a ser inserido nos aquivos
 web 	= 'mpitemporario.com.br/projetos/' # site para montar a sessao
+
 # Sistema editável
 vAll 	= True # Quando True resgata todas as MPI'S automaticamente
 f 		= []
 
+# lista de variáveis para exibir no comando
+VAR = {'htdocs': htdocs, 'code': code, 'url': web}
 init(autoreset=True)
+
+# comandos do sistema
+def commands(console):
+
+	# help
+	if ' help' in console or 'help' == console:
+		print('planos_py, versão 1.0 (beta)')
+		print('Comandos de execução')
+		print(' -a     ───────  Inicia o programa.')
+		print(' -edit  ───────  Edita uma variável existente do sitema. [var] [...] -edit')
+		print(' -p     ───────  Imprime na tela uma variável existente. [var] -p')
+		print('Comandos rápidos')
+		print(' clear  ───────  Limpa todos os elementos na tela.')
+		print(' exit   ───────  Encerra todos os processos.')
+		print(' help   ───────  Exibe comandos completos do sistema.')
+		print(' var    ───────  Exibe todas as variáveis do sistema.')
+
+	if ' clear' in console or 'clear' == console:
+		clear = lambda: os.system('cls')
+		clear()
+	if 'exit' == console:
+		sys.exit()
+	if 'var' == console:
+		print('Variáveis do sistema')
+		for item in VAR.keys():
+			print(' ' + item + ': ' + VAR[item])
+	if ' -p' in console:
+		for event in VAR:
+			if console.split(' -p')[0] in event:
+				print(VAR[event])
+
+	if ' -edit' in console:
+		for event in VAR:
+			if console.split(' ')[0].strip() in event:
+				VAR[event] = console.split(' ')[1]
+				print(VAR[event])
 
 while True:
 
 	# Sistema
-	Start = False
-	terminal = ''
+	Start 		= False
+	terminal 	= ''
 
-	# comandos do sistema
-	def commands(console):
-
-		def getUrl(b):
-			b = b.split('//')[-1].split('/')[-1]
-			return ''
-
-		# lista de variáveis para exibir no comando
-		listvar = {'htdocs': htdocs, 'code': code, 'url': getUrl(htdocs)}
-
-		# help
-		if '-help' in console:
-			print(Fore.WHITE + 'planos_py, versão 1.0 (beta)')
-			print(Fore.WHITE + 'Comandos de execução')
-			print(Fore.GREEN + ' -a   ' + Fore.CYAN + '   ───────  ' + Fore.WHITE + 'Inicia o programa.')
-			print(Fore.GREEN + ' -p   ' + Fore.CYAN + '   ───────  ' + Fore.WHITE + 'Imprime na tela uma variável existente. [var] [...]')
-			print(Fore.GREEN + ' -help' + Fore.CYAN + '   ───────  ' + Fore.WHITE + 'Exibe comandos completos do sistema.')
-			print(Fore.WHITE + '\nComandos rápidos')
-			print(Fore.GREEN + ' clear' + Fore.CYAN + '   ───────  ' + Fore.WHITE + 'Limpa todos os elementos na tela.')
-			print(Fore.GREEN + ' exit ' + Fore.CYAN +  '   ───────  ' + Fore.WHITE + 'Encerra todos os processos.')
-
-		# comandos
-		if ' clear' in console or 'clear' == console:
-			clear = lambda: os.system('cls')
-			clear()
-		if 'exit' == console:
-			sys.exit()
-		if ' -p' in console:
-			var = console.split(' -p')[0]
-			for event in listvar:
-				if var in event:
-					print(listvar[var])
 	# projeto
 	while ' -a' not in terminal:
 		print(Fore.YELLOW + '\nEspecifique o nome do projeto' + Fore.CYAN + ' (-a para iniciar)')
@@ -67,7 +74,7 @@ while True:
 
 	# Variáveis interativas
 	projeto 	= terminal.split(' -a')[0].strip()
-	workplace 	= htdocs + projeto + '/'
+	workplace 	= VAR['htdocs'] + projeto + '/'
 	g 			= []
 
 	# Programa
@@ -85,7 +92,7 @@ while True:
 			f.append(linkMPI.attrs['href'].split('/')[-1])
 
 	Error = { 'Não foi possível ler o(s) arquivo(s)':[],'Não foi possível criar o arquivo':[],'Não foi possível realizar o ajustes no(s) arquivo(s)':[],'Não foi possível recuperar o título da página':[], 'Não foi possível inserir após o H2': [], 'Falha na execução.': [], 'Não foi possível montar a sessão do projeto': [], }
-	Log = { f'Não foi possível inserir "{code}" no arquivo': [],}
+	Log = { 'Não foi possível inserir "{}" no arquivo'.format(VAR['code']): [],}
 
 	# le arquivo e recupera valores
 	def file_read(f):
@@ -142,7 +149,7 @@ while True:
 		    # faz a criacao dos arquivos
 			with open(f'./projetos/{arquivo}' + '.php', 'w', encoding='utf-8') as f:
 
-				body = body.replace(f'<!-- {code} -->', f'<? {code} ?>')
+				body = body.replace('<!-- {} -->'.format(VAR['code']), '<? {} ?>'.format(VAR['code']))
 				#cria
 				f.write(body)
 				f.write('</html>')
@@ -164,7 +171,7 @@ while True:
 			for article in soup.select('article'):
 
 				new_tag = soup.new_tag("div")
-				new_tag.append(f'<!-- {code} -->')
+				new_tag.append('<!-- {} -->'.format(VAR['code']))
 
 				h2 = article.find('h2')
 
@@ -172,7 +179,7 @@ while True:
 				if h2:
 					h2.insert_after(new_tag)
 				else:
-					Log[f'Não foi possível inserir "{code}" no arquivo'].append(f'\n=> {a}')	
+					Log['Não foi possível inserir "{}" no arquivo'.format(VAR['code'])].append(f'\n=> {a}')	
 
 
 			# retorna novo código
@@ -186,10 +193,10 @@ while True:
 			return False
 
 	# Inicia função principal para executar as correções
-	print(Fore.YELLOW + '\nIniciando plano de ação... Aguarde\n')
+	# informa o projeto e metodo
+	print(Fore.MAGENTA + f'\nmethod -a ' + Fore.YELLOW + '{}'.format('/' + workplace.split('//')[-1]) + Fore.CYAN + ' (Processando...)\n')
 
 	session = HTMLSession()
-
 
 	try:
 		
@@ -270,6 +277,6 @@ while True:
 		print(Fore.RED + msg)	
 
 	Start = False
-	workplace = htdocs
+	workplace = VAR['htdocs']
 
 	del f[:]
