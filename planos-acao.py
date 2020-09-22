@@ -1,24 +1,54 @@
 # v1.0 (Beta)
-
+import json
 import os
-from bs4 import BeautifulSoup, Comment
+from bs4 import BeautifulSoup
 from tqdm.auto import tqdm
 from requests_html import HTMLSession
 from colorama import Fore, Style, init
 import sys
 
-# Variáveis Pessoais (alterar)
-htdocs 	= 'E://xampp/htdocs/Git/'	
-code 	= 'include(\'inc/btn-modal.php\');' # Código a ser inserido nos aquivos
-web 	= 'mpitemporario.com.br/projetos/' # site para montar a sessao
+init(autoreset=True)
+
+# Converter objeto em json
+def encode_json(config):
+    with open('config.json', 'w', encoding='utf-8') as f:
+        json.dump(config, f, indent=2)
+
+# interação com os arquivos no data
+def decode_json(load):
+    with open(load + '.json', 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+if os.path.isfile('config.json'):
+
+	# Verifica se o htdocs está vazio
+	htdocs = '' if decode_json('config')['htdocs'] == '' else decode_json('config')['htdocs']
+
+	if htdocs == '':
+		print(Fore.YELLOW + '\nEspecifique o endereço do htdocs')
+		htdocs = str(input('$ '))
+		encode_json({'htdocs': htdocs, 'code': decode_json('config')['code'], 'url': decode_json('config')['url'], 'sub-menu': decode_json('config')['sub-menu'], 'vAll': decode_json('config')['vAll'] })
+
+else:
+
+	print(Fore.YELLOW + '\nEspecifique o endereço do htdocs')
+	htdocs = str(input('$ '))
+
+	# Cria com os valores padrões
+	encode_json({'htdocs': htdocs, 'code': 'include(\'inc/btn-modal.php\');', 'url': 'mpitemporario.com.br/projetos/', 'sub-menu': False, 'vAll': True })
+
+# Define as variáveis do sistema
+VAR = { 
+	'htdocs': decode_json('config')['htdocs'], 
+	'code': decode_json('config')['code'],
+	'url': decode_json('config')['url'],
+	'sub-menu': decode_json('config')['sub-menu'],
+	'vAll': decode_json('config')['vAll'] 
+}
 
 # Sistema editável
-vAll 	= True # Quando True resgata todas as MPI'S automaticamente
-f 		= []
-
-# lista de variáveis para exibir no comando
-VAR = {'htdocs': htdocs, 'code': code, 'url': web}
-init(autoreset=True)
+vAll = VAR['vAll'] # Quando True resgata todas as MPI'S automaticamente
+f    = []
 
 # comandos do sistema
 def commands(console):
@@ -28,7 +58,7 @@ def commands(console):
 		print('planos_py, versão 1.0 (beta)')
 		print('Comandos de execução')
 		print(' -a     ───────  Inicia o programa.')
-		print(' -edit  ───────  Edita uma variável existente do sitema. [var] [...] -edit')
+		print(' -s     ───────  Edita e salva variável já existente do sitema. [var] [...] -s')
 		print(' -p     ───────  Imprime na tela uma variável existente. [var] -p')
 		print('Comandos rápidos')
 		print(' clear  ───────  Limpa todos os elementos na tela.')
@@ -36,6 +66,7 @@ def commands(console):
 		print(' help   ───────  Exibe comandos completos do sistema.')
 		print(' var    ───────  Exibe todas as variáveis do sistema.')
 
+	# comandos rápidos
 	if ' clear' in console or 'clear' == console:
 		clear = lambda: os.system('cls')
 		clear()
@@ -44,16 +75,19 @@ def commands(console):
 	if 'var' == console:
 		print('Variáveis do sistema')
 		for item in VAR.keys():
-			print(' ' + item + ': ' + VAR[item])
+			if type(VAR[item]) == str:
+				print(' ' + item + ': ' + VAR[item])
+
+	# comandos de execução
 	if ' -p' in console:
 		for event in VAR:
 			if console.split(' -p')[0] in event:
 				print(VAR[event])
-
-	if ' -edit' in console:
+	if ' -s' in console:
 		for event in VAR:
 			if console.split(' ')[0].strip() in event:
 				VAR[event] = console.split(' ')[1]
+				encode_json(VAR) # Salva nas config
 				print(VAR[event])
 
 while True:
@@ -81,13 +115,16 @@ while True:
 
 	# Rewrite url
 	def url_replace(url, file):
-		rewrite = 'http://' + web + projeto + '/' if not file else 'http://' + web + projeto + '/' + file
+		rewrite = 'http://' + VAR['url'] + projeto + '/' if not file else 'http://' + VAR['url'] + projeto + '/' + file
 		return rewrite
 
 	def get_mpis(URL):
 		rm = session.get(URL + 'mapa-site')
 		subMenu = rm.html.find('.sitemap ul.sub-menu-info')
-		subMenuInfo = rm.html.find('.sitemap ul.sub-menu-info li a') if subMenu else rm.html.find('.sitemap ul.sub-menu li a')
+		if not VAR['sub-menu']:
+			subMenuInfo = rm.html.find('.sitemap ul.sub-menu-info li a') if subMenu else rm.html.find('.sitemap ul.sub-menu li a')
+		else:
+			subMenuInfo = rm.html.find('.sitemap ul.'+ VAR['sub-menu'] +' li a')
 		for linkMPI in subMenuInfo:
 			f.append(linkMPI.attrs['href'].split('/')[-1])
 
@@ -261,7 +298,7 @@ while True:
 
 	        msg = 'Falha ao tentar executar 1 ou mais funções.'
 	    else:
-	    	msg = 'Foram realizados ({}) planos de ação no projeto\n=> {}'.format(len(g), url_replace(workplace, False))
+	    	msg = 'Foram realizados ({}) planos de ação no projeto'.format(len(g))
 
 	for logItens in Log.keys():
 		if len(Log[logItens]) > 0:
