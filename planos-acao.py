@@ -71,6 +71,7 @@ def commands(console):
 		clear = lambda: os.system('cls')
 		clear()
 	if 'exit' == console:
+		print('Logout')
 		sys.exit()
 	if 'var' == console:
 		print('Variáveis do sistema')
@@ -120,13 +121,9 @@ while True:
 
 	def get_mpis(URL):
 		rm = session.get(URL + 'mapa-site')
-		subMenu = rm.html.find('.sitemap ul.sub-menu-info')
-		if not VAR['sub-menu']:
-			subMenuInfo = rm.html.find('.sitemap ul.sub-menu-info li a') if subMenu else rm.html.find('.sitemap ul.sub-menu li a')
-		else:
-			subMenuInfo = rm.html.find('.sitemap ul.'+ VAR['sub-menu'] +' li a')
-		for linkMPI in subMenuInfo:
-			f.append(linkMPI.attrs['href'].split('/')[-1])
+		submenu = rm.html.find('.sitemap ul.sub-menu-info li a') if rm.html.find('.sitemap ul.sub-menu-info') else rm.html.find('.sitemap ul.sub-menu li a') if not VAR['sub-menu'] else rm.html.find('.sitemap ul.'+ VAR['sub-menu'] +' li a')
+		for links in submenu:
+			f.append(links.attrs['href'].split('/')[-1])
 
 	Error = { 'Não foi possível ler o(s) arquivo(s)':[],'Não foi possível criar o arquivo':[],'Não foi possível realizar o ajustes no(s) arquivo(s)':[],'Não foi possível recuperar o título da página':[], 'Não foi possível inserir após o H2': [], 'Falha na execução.': [], 'Não foi possível montar a sessão do projeto': [], }
 	Log = { 'Não foi possível inserir "{}" no arquivo'.format(VAR['code']): [],}
