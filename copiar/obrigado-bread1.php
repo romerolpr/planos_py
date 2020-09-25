@@ -1,9 +1,9 @@
 <?php
-$h1     = 'Sucesso';
+$h1     = 'Obrigado';
 $texto = "Obrigado por entrar em contato, nossa equipe responderá o mais rápido possível";
 
 $title  = 'Entre em Contato';
-$desc   = 'Sucesso - Entre em contato e envie sua mensagem pelo formulário e logo entraremos em contato. Qualquer dúvida estamos a disposição pelo email ou telefone';
+$desc   = 'Obrigado - Entre em contato e envie sua mensagem pelo formulário e logo entraremos em contato. Qualquer dúvida estamos a disposição pelo email ou telefone';
 $key    = 'salgados, máquinas, coxinhas';
 $var    = 'Entre em Contato';
 include('inc/head.php');

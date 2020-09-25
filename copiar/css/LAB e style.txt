@@ -8,6 +8,8 @@
 
 ################
 
+@media (max-width: 767px) { #banner { width: 100%!important; } }
+
 .popup {
    position: fixed;
    z-index: 999;

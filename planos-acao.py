@@ -86,10 +86,13 @@ def commands(console):
 				print(VAR[event])
 	if ' -s' in console:
 		for event in VAR:
-			if console.split(' ')[0].strip() in event:
-				VAR[event] = console.split(' ')[1]
-				encode_json(VAR) # Salva nas config
-				print(VAR[event])
+			nvar = console.split(' ').strip()
+			if nvar[0] in VAR:
+				del nvar[-1]
+				for p in nvar:
+					VAR[event] = ' '.join(map(str, nvar))
+					encode_json(VAR) # Salva nas config
+					print(VAR[event])
 
 while True:
 
@@ -121,7 +124,7 @@ while True:
 
 	def get_mpis(URL):
 		rm = session.get(URL + 'mapa-site')
-		submenu = rm.html.find('.sitemap ul.sub-menu-info li a') if rm.html.find('.sitemap ul.sub-menu-info') else rm.html.find('.sitemap ul.sub-menu li a') if not VAR['sub-menu'] else rm.html.find('.sitemap ul.'+ VAR['sub-menu'] +' li a')
+		submenu = rm.html.find('.sitemap ul.sub-menu-info li a') if rm.html.find('.sitemap ul.sub-menu-info') else rm.html.find('.sitemap ul.sub-menu li a') if not VAR['sub-menu'] else rm.html.find('.sitemap ' + VAR['sub-menu'] + ' li a')
 		for links in submenu:
 			f.append(links.attrs['href'].split('/')[-1])
 
@@ -228,7 +231,7 @@ while True:
 
 	# Inicia função principal para executar as correções
 	# informa o projeto e metodo
-	print(Fore.MAGENTA + f'\nmethod -a ' + Fore.YELLOW + '{}'.format('/' + workplace.split('//')[-1]) + Fore.CYAN + ' (Processando...)\n')
+	print(Fore.MAGENTA + f'\nmethod -a ' + Fore.YELLOW + '{}'.format('/' + workplace.split('//')[-1]) + Fore.CYAN + ' (running)\n')
 
 	session = HTMLSession()
 
@@ -308,7 +311,7 @@ while True:
 	if len(g) > 0:
 		print(Fore.GREEN + msg)
 	else:
-		print(Fore.RED + msg)	
+		print(Fore.RED + msg + '\n=> ' + url_replace(workplace, False))
 
 	Start = False
 	workplace = VAR['htdocs']
