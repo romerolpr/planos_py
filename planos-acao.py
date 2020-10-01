@@ -39,32 +39,39 @@ else:
 
 # Define as variáveis do sistema
 VAR = { 
-	'htdocs': decode_json('config')['htdocs'], 
-	'code': decode_json('config')['code'],
-	'url': decode_json('config')['url'],
-	'sub-menu': decode_json('config')['sub-menu'],
-	'vAll': decode_json('config')['vAll'] 
+	'__system': {
+		'version'	: '1.0.1',
+		'current'	: 'beta'
+	},
+	'__const': {
+		'htdocs'	: decode_json('config')['htdocs'].replace('\\', '/'),
+		'code'		: decode_json('config')['code'].replace('\\', '/'),
+		'url'		: decode_json('config')['url'].replace('\\', '/'),
+		'sub-menu'	: decode_json('config')['sub-menu'],
+		'vAll'		: decode_json('config')['vAll'],
+		'MPI'		: []
+	}
 }
-
-# Sistema editável
-vAll = VAR['vAll'] # Quando True resgata todas as MPI'S automaticamente
-f    = []
 
 # comandos do sistema
 def commands(console):
 
+	def reset_config(n):
+		encode_json({'htdocs': htdocs if n == 0 else '', 'code': 'include(\'inc/btn-modal.php\');', 'url': '', 'sub-menu': False, 'vAll': True })
+
 	# help
 	if ' help' in console or 'help' == console:
-		print('planos_py, versão 1.0 (beta)')
+		print('planos_py, versão {} {}'.format(VAR['__system']['version'],VAR['__system']['current']))
 		print('Comandos de execução')
-		print(' -a     ───────  Inicia o programa.')
-		print(' -s     ───────  Edita e salva variável já existente do sitema. [var] [...] -s')
-		print(' -p     ───────  Imprime na tela uma variável existente. [var] -p')
-		print('Comandos rápidos')
-		print(' clear  ───────  Limpa todos os elementos na tela.')
-		print(' exit   ───────  Encerra todos os processos.')
-		print(' help   ───────  Exibe comandos completos do sistema.')
-		print(' var    ───────  Exibe todas as variáveis do sistema.')
+		print(' -a       Inicia o programa.')
+		print(' -s       Edita e salva variável já existente do sitema.    [var] [...] -s')
+		print(' -p       Imprime na tela uma variável existente.           [var] -p')
+		print('\nComandos rápidos')
+		print(' clear    Limpa todos os elementos na tela.')
+		print(' exit     Encerra todos os processos.')
+		print(' help     Exibe comandos completos do sistema.')
+		print(' var      Exibe todas as variáveis do sistema.')
+		print(' version  Informa o número da versão atual da aplicação.')
 
 	# comandos rápidos
 	if ' clear' in console or 'clear' == console:
@@ -75,24 +82,45 @@ def commands(console):
 		sys.exit()
 	if 'var' == console:
 		print('Variáveis do sistema')
-		for item in VAR.keys():
-			if type(VAR[item]) == str:
-				print(' ' + item + ': ' + VAR[item])
+		for item in VAR['__const'].keys():
+			if type(VAR['__const'][item]) == str and VAR['__const'][item] != 'version':
+				print(' ' + item + ': ' + VAR['__const'][item])
+	if 'reset' == console:
+		print(Fore.GREEN + '\nVocê deseja realmente restaurar todas as variáveis do sistema?' + Fore.CYAN + ' (y/ n)')
+		reset = input("$ ")
+		if reset.lower() == 'y':
+		    reset_config(1)
+		    sys.exit()
+		else:
+			clear = lambda: os.system('cls')
+			clear()
+	if 'version' == console:
+		print('versão: {} {}'.format(VAR['__system']['version'],VAR['__system']['current']))
 
 	# comandos de execução
 	if ' -p' in console:
-		for event in VAR:
+		for event in VAR['__const']:
 			if console.split(' -p')[0] in event:
-				print(VAR[event])
+				print(VAR['__const'][event])
 	if ' -s' in console:
-		for event in VAR:
-			nvar = console.split(' ').strip()
-			if nvar[0] in VAR:
-				del nvar[-1]
-				for p in nvar:
-					VAR[event] = ' '.join(map(str, nvar))
-					encode_json(VAR) # Salva nas config
-					print(VAR[event])
+
+		nvar = console.split(' ')
+		ncode = nvar[0]
+
+		# deleta índices não uteis
+		del nvar[0]
+		del nvar[-1]
+		for event in VAR['__const']:
+			if ncode in VAR['__const']:
+				if len(nvar) <= 1:
+					VAR['__const'][ncode] = nvar[-1]
+					encode_json(VAR)
+					print(nvar[-1])
+				else:
+					VAR['__const'][ncode] = ' '.join(map(str, nvar))
+					encode_json(VAR)
+					print(' '.join(map(str, nvar)))
+				break
 
 while True:
 
@@ -102,7 +130,7 @@ while True:
 
 	# projeto
 	while ' -a' not in terminal:
-		print(Fore.YELLOW + '\nEspecifique o nome do projeto' + Fore.CYAN + ' (-a para iniciar)')
+		print(Fore.YELLOW + '\nEspecifique o nome do projeto:' + Fore.CYAN + ' (-a para iniciar)')
 		terminal = str(input('$ '))
 		# definindo funções do console
 		if terminal not in ' -a':
@@ -112,24 +140,39 @@ while True:
 
 	# Variáveis interativas
 	projeto 	= terminal.split(' -a')[0].strip()
-	workplace 	= VAR['htdocs'] + projeto + '/'
+	workplace 	= VAR['__const']['htdocs'] + projeto + '/'
 	g 			= []
-
-	# Programa
 
 	# Rewrite url
 	def url_replace(url, file):
-		rewrite = 'http://' + VAR['url'] + projeto + '/' if not file else 'http://' + VAR['url'] + projeto + '/' + file
+		rewrite = 'http://' + VAR['__const']['url'] + projeto + '/' if not file else 'http://' + VAR['__const']['url'] + projeto + '/' + file
 		return rewrite
 
 	def get_mpis(URL):
 		rm = session.get(URL + 'mapa-site')
-		submenu = rm.html.find('.sitemap ul.sub-menu-info li a') if rm.html.find('.sitemap ul.sub-menu-info') else rm.html.find('.sitemap ul.sub-menu li a') if not VAR['sub-menu'] else rm.html.find('.sitemap ' + VAR['sub-menu'] + ' li a')
+		submenu = rm.html.find('.sitemap ul.sub-menu-info li a') if rm.html.find('.sitemap ul.sub-menu-info') else rm.html.find('.sitemap ul.sub-menu li a') if not VAR['__const']['sub-menu'] else rm.html.find(VAR['__const']['sub-menu'])
 		for links in submenu:
-			f.append(links.attrs['href'].split('/')[-1])
+			VAR['__const']['MPI'].append(links.attrs['href'].split('/')[-1])
 
-	Error = { 'Não foi possível ler o(s) arquivo(s)':[],'Não foi possível criar o arquivo':[],'Não foi possível realizar o ajustes no(s) arquivo(s)':[],'Não foi possível recuperar o título da página':[], 'Não foi possível inserir após o H2': [], 'Falha na execução.': [], 'Não foi possível montar a sessão do projeto': [], }
-	Log = { 'Não foi possível inserir "{}" no arquivo'.format(VAR['code']): [],}
+	Log = {
+
+		'Warning': {
+			'Não foi possível inserir "{}" no arquivo'.format(VAR['__const']['code']): []
+		},
+
+		'Error': {
+			'Não foi possível ler o(s) arquivo(s)':[],
+			'Não foi possível criar o arquivo':[],
+			'Não foi possível realizar o ajustes no(s) arquivo(s)':[],
+			'Não foi possível recuperar o título da página':[],
+			'Não foi possível inserir após o H2': [],
+			'Não foi possível montar a sessão do projeto': [],
+			'Não foi possível iniciar a função.': [],
+			'Falha na execução.': [],
+		},
+
+		'Success': []
+	}
 
 	# le arquivo e recupera valores
 	def file_read(f):
@@ -142,7 +185,7 @@ while True:
 					content.append(elem)
 					# string converter
 				return ''.join(map(str, content))
-		except IOError:
+		except IOLog['Error']:
 			return False	
 		
 	# variáveis para mascara
@@ -160,14 +203,10 @@ while True:
 	def mask(c, i):
 		import re
 		try:
-
 			# aplica a mascara
 			m = re.sub(r"<\?.*\?>", remove, c)
 			soup = BeautifulSoup(m, "html.parser")
-			if i == True:
-				mask = re.sub(msk, remove, soup.prettify())
-			else:
-				mask = re.sub(msk, add, soup.prettify())
+			mask = re.sub(msk, remove, str(soup.prettify(formatter=None))) if i else re.sub(msk, add, str(soup.prettify(formatter=None)))
 		except:
 			mask = False
 
@@ -186,12 +225,12 @@ while True:
 		    # faz a criacao dos arquivos
 			with open(f'./projetos/{arquivo}' + '.php', 'w', encoding='utf-8') as f:
 
-				body = body.replace('<!-- {} -->'.format(VAR['code']), '<? {} ?>'.format(VAR['code']))
+				body = body.replace('<!-- {} -->'.format(VAR['__const']['code']), '<? {} ?>'.format(VAR['__const']['code']))
 				#cria
 				f.write(body)
 				f.write('</html>')
 		except: 
-		    Error['Não foi possível criar o arquivo'].append(f'=> {file}')
+		    Log['Error']['Não foi possível criar o arquivo'].append(f'=> {file}')
 
 	# insere o codigo
 	def add_content(t, html, a):
@@ -208,7 +247,7 @@ while True:
 			for article in soup.select('article'):
 
 				new_tag = soup.new_tag("div")
-				new_tag.append('<!-- {} -->'.format(VAR['code']))
+				new_tag.append('<!-- {} -->'.format(VAR['__const']['code']))
 
 				h2 = article.find('h2')
 
@@ -216,7 +255,7 @@ while True:
 				if h2:
 					h2.insert_after(new_tag)
 				else:
-					Log['Não foi possível inserir "{}" no arquivo'.format(VAR['code'])].append(f'\n=> {a}')	
+					Log['Error']['Não foi possível inserir "{}" no arquivo'.format(VAR['__const']['code'])].append(f'\n=> {a}')	
 
 
 			# retorna novo código
@@ -239,16 +278,16 @@ while True:
 		
 		try:
 
-			if vAll:
+			if VAR['__const']['vAll']:
 				get_mpis(url_replace(workplace, False))
 
 		except:
 
-			Error['Não foi possível recuperar as palavras chaves do projeto'].append(f'=> {url_replace(workplace, a)}')
+			Log['Error']['Não foi possível recuperar as palavras chaves do projeto'].append(f'=> {url_replace(workplace, a)}')
 
 		else:
 
-			for a in tqdm(f):
+			for a in tqdm(VAR['__const']['MPI']):
 
 				# monta sessão
 				r = session.get(url_replace(workplace, a))
@@ -257,7 +296,7 @@ while True:
 				html = file_read(workplace + a.strip())
 				if not html:
 					# exibe erro se nao conseguir ler o arquivo
-					Error['Não foi possível ler o(s) arquivo(s)'].append(f'=> {f}')
+					Log['Error']['Não foi possível ler o(s) arquivo(s)'].append(f'=> {a}')
 					break
 				# retorna o title da pagina
 				try:
@@ -265,7 +304,7 @@ while True:
 					for v in t:
 						title = v.text.split('-')[0]
 				except:
-					Error['Não foi possível recuperar o título da página'].append(f'=> {url_replace(workplace, a)}')
+					Log['Error']['Não foi possível recuperar o título da página'].append(f'=> {url_replace(workplace, a)}')
 				else:
 					try:
 						
@@ -276,44 +315,31 @@ while True:
 							create(body, a)
 							# print(body)
 							g.append(a)
+							Log['Success'].append(f'=> {a}')
 						else:
-							Error['Falha na execução.'].append(f'=> {a}')
+							Log['Error']['Falha na execução.'].append(f'=> {a}')
 
 					except:
-						Error['Não foi possível realizar o ajustes no(s) arquivo(s)'].append(f'=> {a}')
+						Log['Error']['Não foi possível realizar o ajustes no(s) arquivo(s)'].append(f'=> {a}')
 
 					del elements[:]
 			
 	except:
-		print(Fore.RED + 'Não foi possível iniciar a função.')
+		Log['Error']['Não foi possível iniciar a função.'].append(f'=> {workplace}')
 
 	# Exibe log na tela
-	for errosItens in Error.keys():
-	    if len(Error[errosItens]) > 0:
-
-	        print(Fore.RED + errosItens)
-
-	        for errosValores in Error[errosItens]:
-	            print(Fore.RED + errosValores)
-
-	        msg = 'Falha ao tentar executar 1 ou mais funções.'
-	    else:
-	    	msg = 'Foram realizados ({}) planos de ação no projeto'.format(len(g))
-
-	for logItens in Log.keys():
-		if len(Log[logItens]) > 0:
-		    print('!!! AVISO !!!\n')
-		    print(Fore.YELLOW + logItens)
-		    for logValores in Log[logItens]:
-		        print(Fore.YELLOW + logValores)
-
-	print('\n')
-	if len(g) > 0:
-		print(Fore.GREEN + msg)
-	else:
-		print(Fore.RED + msg + '\n=> ' + url_replace(workplace, False))
+	for x in Log.keys():
+		for y in Log[x]:
+			if x == 'Success':
+				print(Fore.GREEN + '\nForam realizados {}/{} ajustes no projeto.'.format(len(Log['Success']), len(VAR['__const']['MPI'])))
+				break
+			else:
+				if len(Log[x][y]) > 0:
+					print(Fore.RED + '\n' + y)
+					for z in Log[x][y]:
+						print(Fore.RED + ' ' + z)
 
 	Start = False
-	workplace = VAR['htdocs']
+	workplace = VAR['__const']['htdocs']
 
-	del f[:]
+	del VAR['__const']['MPI'][:]

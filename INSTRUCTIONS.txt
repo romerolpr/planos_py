@@ -1,0 +1,57 @@
+# Versão beta 2.0
+
+1. Clonando o projeto
+
+	1.1. Baixar o projeto
+	Validar se o projeto possui bread1 ou bread2
+
+	1.2. Entrar em planos_py-master\copiar:
+	Copiar os arquivos obrigado e especialista-envia e colar na raiz do projeto, renomeando o arquivo obrigado removendo o "bread..."
+	Entrar na inc e copiar todos os arquivos e colar dentro da inc do projeto
+
+	1.3. Entrar na pasta css e abrir o txt:
+	Copiar o primeiro script "especialista-modal" e colar no LAB do projeto
+	Copiar o outro script no footer ou no lab
+	Copiar o código do estilo e colar no final do style.css do projeto
+	Identificar as classes "#form-especialista #cf_submit-cta-form-rotulos-para-bebidas" e ".popup a" e trocar a cor do background na mesma cor do .btn do projeto para padronizar as cores.
+
+2. Configurando a aplicação
+	
+	2.1. Definir variáveis do sistema
+	Abrir o python "planos-acao.py" e nele definir o caminho onde está o projeto ex: C:\xampp\htdocs\git\
+	Para validar se os caminhos estão ok, dar o comando "var" no terminal .py para exibir todas as variáveis padrões definidas
+	
+	2.2. Config.json
+	Se for preciso alterar qualquer variável (SUB-MENU, URL, HTDOCS...), abrir o arquivo "config.json".
+		2.2.1. Definir nova URL
+		Caso precise alterar a variável URL, (por padrão "mpitemporario.com.br/projetos") para a do ar, colocar o parâmetro "url" como vazio (url: ""), ou se por ventura precise deixar no temporário, ou local, apenas incluir o caminho desejado.
+	
+	2.3. Iniciar ação de UX
+	Especifique o projeto seguido do parâmetro "-a" para iniciar ex: site.com.br -a
+	[obs: Se o mesmo tiver www incluir ex: www.site.com.br -a]
+
+3. Validando a implementação
+
+	3.1. Validar os arquivos
+	Assim que finalizar a execução entrar na pasta > planos_py-master\projetos e jogar o projeto dentro do sublime
+	Validar se o projeto está com a linha de código <? include('inc/btn-modal.php'); ?> abaixo da primeira h2 da mpi
+	Validado também localmente, ou no temporário e estando ok subir o projeto
+
+4. Finalizando
+
+	Com o projeto no ar criar 2 metas no analytics "Clique Especialista" e "Obrigado"
+
+	Clique Especialista:
+	Configuração da meta (Personalizado) >
+	Descrição da meta (Clique Especialista) (Evento) >
+	Detalhes da meta -
+	Categoria: Evento Modal
+	Ação: Clique
+	Rótulo: Clique Modal
+	Valor: deixar vazio
+
+	Obrigado:
+	Configuração da meta (Personalizado) >
+	Descrição da meta (Obrigado) (Destino) >
+	Detalhes da meta -
+	Destino: http://www.site.com.br/obrigado
