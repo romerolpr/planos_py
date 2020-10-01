@@ -114,11 +114,11 @@ def commands(console):
 			if ncode in VAR['__const']:
 				if len(nvar) <= 1:
 					VAR['__const'][ncode] = nvar[-1]
-					encode_json(VAR)
+					encode_json(VAR['__const'])
 					print(nvar[-1])
 				else:
 					VAR['__const'][ncode] = ' '.join(map(str, nvar))
-					encode_json(VAR)
+					encode_json(VAR['__const'])
 					print(' '.join(map(str, nvar)))
 				break
 
